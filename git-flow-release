@@ -102,7 +102,9 @@ _finish_from_develop() {
 	# Try to merge into master.
 	# In case a previous attempt to finish this release branch has failed,
 	# but the merge into master was successful, we skip it now
-	if ! git_is_branch_merged_into "$BRANCH" "$MASTER_BRANCH"; then
+  if flag pull_request && [[ -n $PR_FUNC ]]; then
+    $PR_FUNC $BRANCH $BASE_BRANCH
+	elif ! git_is_branch_merged_into "$BRANCH" "$MASTER_BRANCH"; then
 			git_do checkout "$MASTER_BRANCH" || die "Could not check out branch '$MASTER_BRANCH'."
 			if noflag squash; then
 				git_do merge --no-ff "$BRANCH" || die "There were merge conflicts." # TODO: What do we do now?
@@ -510,12 +512,18 @@ parse_args() {
 	FLAGS "$@" || exit $?
 	eval set -- "${FLAGS_ARGV}"
 
-	# Read arguments into global variables
-	if [ -z $1 ]; then
-		VERSION=''
-	else
-		VERSION=$1
+	VERSION=''
+  PR_FUNC=''
+  # read arguments into global variables
+  if type $1 2>/dev/null | grep -q 'function'; then
+    if [[ -n $2 ]]; then
+      PR_FUNC=$1
+		  VERSION=$2
+    else PR_FUNC=$1
+    fi
+	elif [[ -n $1 ]]; then VERSION=$1;
 	fi
+
 	BRANCH=$PREFIX$VERSION
 }
 
@@ -603,7 +611,7 @@ v,verbose!           Verbose (more) output
 
 cmd_finish() {
 	OPTIONS_SPEC="\
-git flow release finish [-h] [-F] [-s] [-u] [-m | -f] [-p] [-k] [-n] [-b] [-S] <version>
+git flow release finish [-h] [-F] [-s] [-u] [-m | -f] [-p] [-P] [-k] [-n] [-b] [-S] <version>
 
 
 Finish a release branch
@@ -616,6 +624,7 @@ u,signingkey!       Use the given GPG-key for the digital signature (implies -s)
 m,message!          Use the given tag message
 f,[no]messagefile=  Use the contents of the given file as a tag message
 p,[no]push          Push to origin after performing finish
+P,[no]pull-request  Create a pull request
 [no]pushproduction  Push the production branch
 [no]pushdevelop     Push the develop branch
 [no]pushtag         Push the tag
@@ -637,6 +646,7 @@ nodevelopmerge!  Don't back-merge develop branch
 	DEFINE_string  'message' "" "use the given tag message" m
 	DEFINE_string  'messagefile' "" "use the contents of the given file as a tag message" f
 	DEFINE_boolean 'push' false "push to $ORIGIN after performing finish" p
+  DEFINE_boolean 'pull-request' false 'create a pull request instead of merging locally' P
 	DEFINE_boolean 'pushproduction' false "push the production branch"
 	DEFINE_boolean 'pushdevelop' false "push the develop branch"
 	DEFINE_boolean 'pushtag' false "push the tag"

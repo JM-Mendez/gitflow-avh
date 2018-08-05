@@ -144,14 +144,20 @@ cmd_help() {
 parse_args() {
 	FLAGS "$@" || exit $?
 	eval set -- "${FLAGS_ARGV}"
-
+  
+	NAME=''
+  PR_FUNC=''
 	# read arguments into global variables
-	if [ -z $1 ]; then
-		NAME=''
-	else
-		NAME=$1
+  if type $1 2>/dev/null | grep -q 'function'; then
+    if [[ -n $2 ]]; then
+      PR_FUNC=$1
+		  NAME=$2
+    else PR_FUNC=$1
+    fi
+	elif [[ -n $1 ]]; then NAME=$1;
 	fi
-	BRANCH=$PREFIX$NAME
+
+  BRANCH=$PREFIX$NAME
 }
 
 parse_remote_name() {
@@ -236,7 +242,7 @@ F,[no]fetch      Fetch from origin before performing local operation
 
 cmd_finish() {
 	OPTIONS_SPEC="\
-git flow bugfix finish [-h] [-F] [-r] [-p] [-k] [-D] [-S] [--no-ff] <name|nameprefix>
+git flow bugfix finish [-h] [-F] [-r] [-p] [-P] [-k] [-D] [-S] [--no-ff] <name|nameprefix>
 
 Finish bugfix <name>
 --
@@ -245,12 +251,13 @@ showcommands!          Show git commands while executing them
 F,[no]fetch            Fetch from origin before performing finish
 r,[no]rebase           Rebase before merging
 p,[no]preserve-merges  Preserve merges while rebasing
+P,[no]pull-request     Create a pull request
 [no]push               Push to origin after performing finish
 k,[no]keep             Keep branch after performing finish
 keepremote!        	   Keep the remote branch
 keeplocal!             Keep the local branch
-D,[no]force_delete     Force delete bugfix branch after finish
-S,[no]squash           Squash bugfix during merge
+D,[no]force_delete     Force delete feature branch after finish
+S,[no]squash           Squash feature during merge
 no-ff!                 Never fast-forward during the merge
 "
 	local finish_base
@@ -259,12 +266,13 @@ no-ff!                 Never fast-forward during the merge
 	DEFINE_boolean 'fetch' false "fetch from $ORIGIN before performing finish" F
 	DEFINE_boolean 'rebase' false "rebase before merging" r
 	DEFINE_boolean 'preserve-merges' false 'try to recreate merges while rebasing' p
+	DEFINE_boolean 'pull-request' false 'create a pull request instead of merging locally' P
 	DEFINE_boolean 'push' false "push to $ORIGIN after performing finish"
 	DEFINE_boolean 'keep' false "keep branch after performing finish" k
 	DEFINE_boolean 'keepremote' false "keep the remote branch"
 	DEFINE_boolean 'keeplocal' false "keep the local branch"
-	DEFINE_boolean 'force_delete' false "force delete bugfix branch after finish" D
-	DEFINE_boolean 'squash' false "squash bugfix during merge" S
+	DEFINE_boolean 'force_delete' false "force delete feature branch after finish" D
+	DEFINE_boolean 'squash' false "squash feature during merge" S
 	DEFINE_boolean 'squash-info' false "add branch info during squash"
 	DEFINE_boolean 'no-ff!' false "Don't fast-forward ever during merge "
 
@@ -388,7 +396,9 @@ no-ff!                 Never fast-forward during the merge
 	# Merge into BASE
 	git_do checkout "$BASE_BRANCH" || die "Could not check out branch '$BASE_BRANCH'."
 
-	if noflag squash; then
+	if flag pull_request && [[ -n $PR_FUNC ]]; then
+    $PR_FUNC $BRANCH $BASE_BRANCH
+	elif noflag squash; then
 		if flag no_ff; then
 			git_do merge --no-ff "$BRANCH"
 		else
@@ -400,7 +410,7 @@ no-ff!                 Never fast-forward during the merge
 		fi
 	else
 		git_do merge --squash "$BRANCH"
-		flag squash_info && gitflow_create_squash_message "Merged bugfix branch '$BRANCH'" "$BASE_BRANCH" "$BRANCH" > "$DOT_GIT_DIR/SQUASH_MSG"
+		flag squash_info && gitflow_create_squash_message "Merged feature branch '$BRANCH'" "$BASE_BRANCH" "$BRANCH" > "$DOT_GIT_DIR/SQUASH_MSG"
 		git_do commit
 	fi
 
