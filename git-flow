@@ -36,9 +36,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 #
-reset="\x1B[0m"
-blue="\x1B[34m"
-lightyellow="\x1B[93m"
+# https://misc.flogisoft.com/bash/tip_colors_and_formatting#colors1
+my_blue='$FG[075]'
+my_red='$FG[124]'
+my_yellow='$FG[136]'
+my_purple='$FG[129]'
+my_green='$FG[034]'
+my_grey='$FG[247]'
 # enable debug mode
 if [ "$DEBUG" = "yes" ]; then
 	set -x
