@@ -813,17 +813,17 @@ r,[no]remote     Delete remote branch
 		fi
 	fi
 
-	if git_is_branch_merged_into "$BRANCH" "$BASE_BRANCH"; then
-		git_do branch -d "$BRANCH" || die "Could not delete the $BRANCH."
-		if flag remote; then
-			git_remote_branch_delete "$BRANCH"
-		fi
+  if flag force; then
+	  git_do branch -D "$BRANCH" || die "Could not delete the $BRANCH."
+	  if flag remote; then
+	  	git_remote_branch_delete "$BRANCH"
+	  fi
 	else
-		if flag force; then
-			git_do branch -D "$BRANCH" || die "Could not delete the $BRANCH."
-			if flag remote; then
-				git_remote_branch_delete "$BRANCH"
-			fi
+		if git_is_branch_merged_into "$BRANCH" "$BASE_BRANCH"; then
+		  git_do branch -d "$BRANCH" || die "Could not delete the $BRANCH."
+		  if flag remote; then
+		  	git_remote_branch_delete "$BRANCH"
+		  fi
 		else
 			die "Feature branch '$BRANCH' has been not been merged yet. Use -f to force the deletion."
 		fi

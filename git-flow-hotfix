@@ -714,17 +714,17 @@ r,[no]remote          Delete remote branch
 		git_do checkout "$MASTER_BRANCH" || die "Could not check out branch '$MASTER_BRANCH'."
 	fi
 
-	if ( git_is_branch_merged_into "$BRANCH" "$MASTER_BRANCH" && git_is_branch_merged_into "$BRANCH" "$DEVELOP_BRANCH" ); then
-		git_do branch -d "$BRANCH" || die "Could not delete the $BRANCH."
+	if flag force; then
+		git_do branch -D "$BRANCH" || die "Could not delete the $BRANCH."
 		if flag remote; then
 			git_remote_branch_delete "$BRANCH"
 		fi
 	else
-		if flag force; then
-			git_do branch -D "$BRANCH" || die "Could not delete the $BRANCH."
-			if flag remote; then
-				git_remote_branch_delete "$BRANCH"
-			fi
+    if ( git_is_branch_merged_into "$BRANCH" "$MASTER_BRANCH" && git_is_branch_merged_into "$BRANCH" "$DEVELOP_BRANCH" ); then
+		  git_do branch -d "$BRANCH" || die "Could not delete the $BRANCH."
+		  if flag remote; then
+		  	git_remote_branch_delete "$BRANCH"
+		  fi
 		else
 			die "Hotfix branch '$BRANCH' has been not been merged in branch '$MASTER_BRANCH' and/or branch '$DEVELOP_BRANCH'. Use -f to force the deletion."
 		fi
