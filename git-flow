@@ -48,12 +48,13 @@ if [ "$DEBUG" = "yes" ]; then
 	set -x
 fi
 
-if [[ ! -f $HOME/.zshrc.d/git.zshrc ]]; then
- die echo $RED"could not find git.zshrc file, and it is required for closing branches"$RESET
+if [[ ! -f $HOME/.zshrc.d/git.zshrc || ! -f $HOME/.zshrc.d/utils.zshrc ]]; then
+ die echo $RED"could not find git.zshrc or utils.zshrc file, and it is required for closing branches"$RESET
 fi
 
 # import the required git functions to allow merging
 source $HOME/.zshrc.d/git.zshrc
+source $HOME/.zshrc.d/utils.zshrc
 
 # Setup the GITFLOW_DIR for different operating systems.
 # This is mostly to make sure that we get the correct directory when the
