@@ -231,18 +231,18 @@ F,[no]fetch       Fetch from origin before performing local operation
 
 	run_post_hook "$VERSION_PREFIX$VERSION" "$ORIGIN" "$BRANCH" "$base"
 
-	echo
-	echo "Summary of actions:"
-	echo "- A new branch '$BRANCH' was created, based on '$base'"
-	echo "- You are now on branch '$(git_current_branch)'"
-	echo
-	echo "Follow-up actions:"
-	echo "- Start committing your hot fixes"
-	echo "- Bump the version number now!"
-	echo "- When done, run:"
-	echo
-	echo "     git flow hotfix finish '$VERSION'"
-	echo
+	# echo
+	# echo "Summary of actions:"
+	# echo "- A new branch '$BRANCH' was created, based on '$base'"
+	# echo "- You are now on branch '$(git_current_branch)'"
+	# echo
+	# echo "Follow-up actions:"
+	# echo "- Start committing your hot fixes"
+	# echo "- Bump the version number now!"
+	# echo "- When done, run:"
+	# echo
+	# echo "     git flow hotfix finish '$VERSION'"
+	# echo
 }
 
 cmd_publish() {
@@ -591,88 +591,88 @@ T,tagname!            Use given tag name
 	# 	fi
 	# fi
 
-	run_post_hook "$VERSION_PREFIX$TAGNAME" "$ORIGIN" "$BRANCH"
+	# run_post_hook "$VERSION_PREFIX$TAGNAME" "$ORIGIN" "$BRANCH"
 
 	# Delete branch
-	if noflag keep; then
+	# if noflag keep; then
 
-		# Always delete remote first
-		if noflag keepremote;then
-			if git_remote_branch_exists "$ORIGIN/$BRANCH"; then
-				git_remote_branch_delete "$BRANCH" && remotebranchdeleted=$FLAGS_TRUE
-			fi
-		fi
+	# 	# Always delete remote first
+	# 	if noflag keepremote;then
+	# 		if git_remote_branch_exists "$ORIGIN/$BRANCH"; then
+	# 			git_remote_branch_delete "$BRANCH" && remotebranchdeleted=$FLAGS_TRUE
+	# 		fi
+	# 	fi
 
-		# Delete local after remote to avoid warnings
-		if noflag keeplocal; then
-			if [ "$BRANCH" = "$(git_current_branch)" ]; then
-				git_do checkout "$DEVELOP_BRANCH" || die "Could not check out branch '$DEVELOP_BRANCH'."
-			fi
-			if flag force_delete; then
-				git_do branch -D "$BRANCH" && localbranchdeleted=$FLAGS_TRUE
-			else
-				git_do branch -d "$BRANCH" && localbranchdeleted=$FLAGS_TRUE
-			fi
-		fi
+	# 	# Delete local after remote to avoid warnings
+	# 	if noflag keeplocal; then
+	# 		if [ "$BRANCH" = "$(git_current_branch)" ]; then
+	# 			git_do checkout "$DEVELOP_BRANCH" || die "Could not check out branch '$DEVELOP_BRANCH'."
+	# 		fi
+	# 		if flag force_delete; then
+	# 			git_do branch -D "$BRANCH" && localbranchdeleted=$FLAGS_TRUE
+	# 		else
+	# 			git_do branch -d "$BRANCH" && localbranchdeleted=$FLAGS_TRUE
+	# 		fi
+	# 	fi
 
-		# no more branches: we can safely remove config section
-		if ! git_remote_branch_exists "$ORIGIN/$BRANCH" -a ! git_local_branch_exists "$BRANCH"; then
-			gitflow_config_remove_base_section "$BRANCH"
-		fi
+	# 	# no more branches: we can safely remove config section
+	# 	if ! git_remote_branch_exists "$ORIGIN/$BRANCH" -a ! git_local_branch_exists "$BRANCH"; then
+	# 		gitflow_config_remove_base_section "$BRANCH"
+	# 	fi
 
-	fi
+	# fi
 
-	if flag push; then
-		if [ "$BASE_BRANCH" = "$MASTER_BRANCH" ]; then
-			git_do push "$ORIGIN" "$DEVELOP_BRANCH" || die "Could not push branch '$DEVELOP_BRANCH' to remote '$ORIGIN'."
-		fi
-		git_do push "$ORIGIN" "$BASE_BRANCH" || die "Could not push branch '$BASE_BRANCH' to remote '$ORIGIN'."
-		if noflag notag; then
-			git_do push --tags "$ORIGIN" || die "Could not push tags to remote '$ORIGIN'."
-		fi
-	fi
+	# if flag push; then
+	# 	if [ "$BASE_BRANCH" = "$MASTER_BRANCH" ]; then
+	# 		git_do push "$ORIGIN" "$DEVELOP_BRANCH" || die "Could not push branch '$DEVELOP_BRANCH' to remote '$ORIGIN'."
+	# 	fi
+	# 	git_do push "$ORIGIN" "$BASE_BRANCH" || die "Could not push branch '$BASE_BRANCH' to remote '$ORIGIN'."
+	# 	if noflag notag; then
+	# 		git_do push --tags "$ORIGIN" || die "Could not push tags to remote '$ORIGIN'."
+	# 	fi
+	# fi
 
-	echo
-	echo "Summary of actions:"
-	if flag fetch; then
-		echo "- Latest objects have been fetched from '$ORIGIN'"
-	fi
-	echo "- Hotfix branch '$BRANCH' has been merged into '$BASE_BRANCH'"
-	if noflag notag; then
-		echo "- The hotfix was tagged '$VERSION_PREFIX$TAGNAME'"
-	fi
-	if [ "$BASE_BRANCH" = "$MASTER_BRANCH" ]; then
-		[ "$commit" = "$BASE_BRANCH" ] && echo "- Master branch '$BASE_BRANCH' has been back-merged into '$DEVELOP_BRANCH'"
-		[ "$commit" = "$VERSION_PREFIX$TAGNAME" ] && echo "- Hotfix tag '$VERSION_PREFIX$TAGNAME' has been back-merged into '$DEVELOP_BRANCH'"
-		[ "$commit" = "$BRANCH" ] && echo "- Hotfix branch '$BRANCH' has been merged into '$DEVELOP_BRANCH'"
-	fi
-	if noflag keep; then
-		if [ $localbranchdeleted -eq $FLAGS_TRUE ]; then
-			keepmsg="has been locally deleted"
-		else
-			keepmsg="is still locally available"
-		fi
-		if [ $remotebranchdeleted -eq $FLAGS_TRUE ]; then
-			keepmsg=$keepmsg"; it has been remotely deleted from '$ORIGIN'"
-		elif git_remote_branch_exists "$ORIGIN/$BRANCH"; then
-			keepmsg=$keepmsg"; it is still remotely available on '$ORIGIN'"
-		fi
-	else
-		keepmsg="is still locally available"
-		if git_remote_branch_exists "$ORIGIN/$BRANCH"; then
-			keepmsg=$keepmsg"; it is still remotely available on '$ORIGIN'"
-		fi
-	fi
-	echo "- Hotfix branch '$BRANCH' "$keepmsg
-	if flag push; then
-		if [ "$BASE_BRANCH" = "$MASTER_BRANCH" ]; then
-			echo "- '$DEVELOP_BRANCH', '$BASE_BRANCH' and tags have been pushed to '$ORIGIN'"
-		else
-			echo "- '$BASE_BRANCH' and tags have been pushed to '$ORIGIN'"
-		fi
-	fi
-	echo "- You are now on branch '$(git_current_branch)'"
-	echo
+	# echo
+	# echo "Summary of actions:"
+	# if flag fetch; then
+	# 	echo "- Latest objects have been fetched from '$ORIGIN'"
+	# fi
+	# echo "- Hotfix branch '$BRANCH' has been merged into '$BASE_BRANCH'"
+	# if noflag notag; then
+	# 	echo "- The hotfix was tagged '$VERSION_PREFIX$TAGNAME'"
+	# fi
+	# if [ "$BASE_BRANCH" = "$MASTER_BRANCH" ]; then
+	# 	[ "$commit" = "$BASE_BRANCH" ] && echo "- Master branch '$BASE_BRANCH' has been back-merged into '$DEVELOP_BRANCH'"
+	# 	[ "$commit" = "$VERSION_PREFIX$TAGNAME" ] && echo "- Hotfix tag '$VERSION_PREFIX$TAGNAME' has been back-merged into '$DEVELOP_BRANCH'"
+	# 	[ "$commit" = "$BRANCH" ] && echo "- Hotfix branch '$BRANCH' has been merged into '$DEVELOP_BRANCH'"
+	# fi
+	# if noflag keep; then
+	# 	if [ $localbranchdeleted -eq $FLAGS_TRUE ]; then
+	# 		keepmsg="has been locally deleted"
+	# 	else
+	# 		keepmsg="is still locally available"
+	# 	fi
+	# 	if [ $remotebranchdeleted -eq $FLAGS_TRUE ]; then
+	# 		keepmsg=$keepmsg"; it has been remotely deleted from '$ORIGIN'"
+	# 	elif git_remote_branch_exists "$ORIGIN/$BRANCH"; then
+	# 		keepmsg=$keepmsg"; it is still remotely available on '$ORIGIN'"
+	# 	fi
+	# else
+	# 	keepmsg="is still locally available"
+	# 	if git_remote_branch_exists "$ORIGIN/$BRANCH"; then
+	# 		keepmsg=$keepmsg"; it is still remotely available on '$ORIGIN'"
+	# 	fi
+	# fi
+	# echo "- Hotfix branch '$BRANCH' "$keepmsg
+	# if flag push; then
+	# 	if [ "$BASE_BRANCH" = "$MASTER_BRANCH" ]; then
+	# 		echo "- '$DEVELOP_BRANCH', '$BASE_BRANCH' and tags have been pushed to '$ORIGIN'"
+	# 	else
+	# 		echo "- '$BASE_BRANCH' and tags have been pushed to '$ORIGIN'"
+	# 	fi
+	# fi
+	# echo "- You are now on branch '$(git_current_branch)'"
+	# echo
 
 }
 
