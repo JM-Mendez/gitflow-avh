@@ -434,8 +434,8 @@ no-ff!                 Never fast-forward during the merge
 	run_post_hook "$NAME" "$ORIGIN" "$BRANCH"
 
 	# When no merge conflict is detected, just clean up the bugfix branch
-	gitflow_config_remove_base_branch "$BRANCH"
-	helper_finish_cleanup
+	# gitflow_config_remove_base_branch "$BRANCH"
+	# helper_finish_cleanup
 }
 
 helper_finish_cleanup() {
