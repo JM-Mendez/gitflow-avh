@@ -396,7 +396,7 @@ no-ff!                 Never fast-forward during the merge
 	git_do checkout "$BASE_BRANCH" || die "Could not check out branch '$BASE_BRANCH'."
 
   if flag pull_request && [[ -n $PR_FUNC ]]; then
-    $PR_FUNC $BRANCH $BASE_BRANCH
+    /usr/bin/env zsh -i -c "$PR_FUNC $BRANCH $BASE_BRANCH"
 	elif noflag squash; then
 		if flag no_ff; then
 			git_do merge --no-ff "$BRANCH"
@@ -413,7 +413,7 @@ no-ff!                 Never fast-forward during the merge
 		git_do commit
 	fi
 
-  # ! disabled due to not being able to return an exit code from node
+  # !  disabled due to not being able to return an exit code from node
 	# if [ $? -ne 0 ]; then
 	# 	# Oops.. we have a merge conflict!
 	# 	# Write the given $BASE_BRANCH to a temporary file as we will

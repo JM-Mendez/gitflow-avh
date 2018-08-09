@@ -37,23 +37,16 @@
 #
 #
 # https://misc.flogisoft.com/bash/tip_colors_and_formatting#colors1
-my_blue='$FG[075]'
-my_red='$FG[124]'
-my_yellow='$FG[136]'
-my_purple='$FG[129]'
-my_green='$FG[034]'
-my_grey='$FG[247]'
 # enable debug mode
 if [ "$DEBUG" = "yes" ]; then
 	set -x
 fi
 
-if [[ ! -f $HOME/.zshrc.d/git.zshrc || ! -f $HOME/.zshrc.d/utils.zshrc ]]; then
- die echo $RED"could not find git.zshrc or utils.zshrc file, and it is required for closing branches"$RESET
+if [[ ! -f $HOME/.zshrc.d/utils.zshrc ]]; then
+ die echo $RED"could not find utils.zshrc file, and it is required for submitting merge requests"$RESET
 fi
 
 # import the required git functions to allow merging
-source $HOME/.zshrc.d/git.zshrc
 source $HOME/.zshrc.d/utils.zshrc
 
 # Setup the GITFLOW_DIR for different operating systems.
