@@ -397,7 +397,7 @@ no-ff!                 Never fast-forward during the merge
 	git_do checkout "$BASE_BRANCH" || die "Could not check out branch '$BASE_BRANCH'."
 
 	if flag pull_request && [[ -n $PR_FUNC ]]; then
-    $PR_FUNC $BRANCH $BASE_BRANCH
+    /usr/bin/env zsh -i -c "$PR_FUNC $BRANCH $BASE_BRANCH"
 	elif noflag squash; then
 		if flag no_ff; then
 			git_do merge --no-ff "$BRANCH"

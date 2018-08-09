@@ -103,7 +103,7 @@ _finish_from_develop() {
 	# In case a previous attempt to finish this release branch has failed,
 	# but the merge into master was successful, we skip it now
   if flag pull_request && [[ -n $PR_FUNC ]]; then
-    $PR_FUNC $BRANCH $BASE_BRANCH
+    /usr/bin/env zsh -i -c "$PR_FUNC $BRANCH $BASE_BRANCH"
 	elif ! git_is_branch_merged_into "$BRANCH" "$MASTER_BRANCH"; then
 			git_do checkout "$MASTER_BRANCH" || die "Could not check out branch '$MASTER_BRANCH'."
 			if noflag squash; then
